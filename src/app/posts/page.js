@@ -1,6 +1,6 @@
-'use client';
+'use client'; // Adicione esta linha no início
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 export default function PostsList() {
@@ -10,30 +10,14 @@ export default function PostsList() {
   const limit = 10; // Itens por página
 
   useEffect(() => {
-    fetchPosts(currentPage);
-  }, [currentPage]);
-
-  async function fetchPosts(page) {
-    try {
-      const res = await fetch(`https://rickandmortyapi.com/api/posts?_page=${page}&_limit=${limit}`);
+    async function fetchPosts() {
+      const res = await fetch(`https://rickandmortyapi.com/api/posts?_page=${currentPage}&_limit=${limit}`);
       const data = await res.json();
       setPosts(data);
-    } catch (error) {
-      console.error('Erro ao buscar posts:', error);
     }
-  }
 
-  function handleNextPage() {
-    if (currentPage < totalPages) {
-      setCurrentPage((prev) => prev + 1);
-    }
-  }
-
-  function handlePreviousPage() {
-    if (currentPage > 1) {
-      setCurrentPage((prev) => prev - 1);
-    }
-  }
+    fetchPosts();
+  }, [currentPage]);
 
   return (
     <div>
@@ -46,14 +30,12 @@ export default function PostsList() {
         ))}
       </ul>
 
-      <div style={{ marginTop: '20px' }}>
-        <button onClick={handlePreviousPage} disabled={currentPage === 1}>
+      <div>
+        <button onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} disabled={currentPage === 1}>
           Anterior
         </button>
-        <span style={{ margin: '0 10px' }}>
-          Página {currentPage} de {totalPages}
-        </span>
-        <button onClick={handleNextPage} disabled={currentPage === totalPages}>
+        <span>{currentPage} de {totalPages}</span>
+        <button onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages}>
           Próxima
         </button>
       </div>

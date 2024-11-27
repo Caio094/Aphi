@@ -1,24 +1,43 @@
-async function getCharacter(id) {
-    const res = await fetch(`https://rickandmortyapi.com/api/character/${id}`);
-    if (!res.ok) throw new Error('Erro ao buscar personagem');
-    return res.json();
+// src/app/characters/[id]/page.js
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation'; // Alteração aqui
+
+export default function CharacterDetail() {
+  const { id } = useParams(); // Pegando o parâmetro id da URL
+  const [character, setCharacter] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCharacter = async () => {
+      try {
+        const res = await fetch(`https://rickandmortyapi.com/api/character/${id}`);
+        const data = await res.json();
+        setCharacter(data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Erro ao buscar o personagem:', error);
+      }
+    };
+
+    if (id) {
+      fetchCharacter();
+    }
+  }, [id]);
+
+  if (loading) {
+    return <div>Carregando...</div>;
   }
-  
-  export default async function CharacterDetails({ params }) {
-    const { id } = params;
-    const character = await getCharacter(id);
-  
-    return (
-      <div className="max-w-lg mx-auto p-6 bg-white shadow-md rounded-md mt-10">
-        <h1 className="text-2xl font-bold mb-4">{character.name}</h1>
-        <img src={character.image} alt={character.name} className="w-full rounded-md mb-4" />
-        <p><strong>Status:</strong> {character.status}</p>
-        <p><strong>Espécie:</strong> {character.species}</p>
-        <p><strong>Gênero:</strong> {character.gender}</p>
-        <a href="/characters" className="mt-4 inline-block text-blue-600 hover:underline">
-          Voltar para a lista
-        </a>
-      </div>
-    );
-  }
-  
+
+  return (
+    <div>
+      <h1>{character.name}</h1>
+      <img src={character.image} alt={character.name} width={200} />
+      <p>Status: {character.status}</p>
+      <p>Espécie: {character.species}</p>
+      <p>Gênero: {character.gender}</p>
+      <p>Origem: {character.origin.name}</p>
+    </div>
+  );
+}
